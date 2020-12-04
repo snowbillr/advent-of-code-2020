@@ -1,7 +1,8 @@
 {
-  "name": "day-1",
+  "name": "advent-of-code-2020",
   "version": "1.0.0",
   "main": "index.js",
+  "author": "Bill Reed <billnreed@gmail.com>",
   "license": "MIT",
   "type": "module"
 }
