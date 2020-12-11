@@ -183,7 +183,7 @@ function reverseMemoizeBranches() {
       return;
     }
 
-    // for each of the ends, return its memoized branch count and sum
+    // for each of the ends, return its memoized branch count then sum
     memoizedBranchCounts[start] = ends.reduce((sum, end) => sum + memoizedBranchCounts[end], 0)
   });
 }
