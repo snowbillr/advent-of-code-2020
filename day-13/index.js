@@ -56,13 +56,58 @@ console.log('initial', busOffsets)
 function findSequentialMultiples(initialList, minimumFirst = 0) {
   let list = Array.from(initialList);
 
+  let relevantOffsets = list.reduce((offsets, value, index) => {
+    if (value > 1) {
+      offsets.push(index);
+    }
+
+    return offsets;
+  }, []);
+  console.log('relevant offsets', relevantOffsets)
+
+  // transform to minimium
+  for (let i = 0; i < list.length; i++) {
+    if (list[i] < minimumFirst) {
+      list[i] *= Math.floor(minimumFirst / list[i])
+    }
+  }
+
+  const maxIterations = 999999;
+  let currentIteration = 0;
+  while(!isListSequential(list) && currentIteration++ < maxIterations) {
+    if (currentIteration > maxIterations - 10) {
+      console.log(currentIteration, list.map((v, i) => relevantOffsets.includes(i) ? v : '.'))
+    }
+
+    for (let i = 0; i < list.length - 1; i++) {
+      if (relevantOffsets.includes(i)) {
+        const subsequentIndex = relevantOffsets[relevantOffsets.findIndex(v => v === i) + 1];
+        const [a, b] = findSequentialMultiplePair(
+          { value: list[i], factor: busOffsets[i] },
+          { value: list[subsequentIndex], factor: busOffsets[subsequentIndex] },
+          subsequentIndex - i
+        );
+        list[i] = a;
+        list[subsequentIndex] = b;
+      } else {
+        list[i] = list[i - 1] + 1;
+      }
+    }
+  }
+
+  console.log(`exited on iteration ${currentIteration}/${maxIterations}`)
+  return list;
+
+  /*
   for (let i = 0; i < list.length; i++) {
    if (list[i] < minimumFirst) {
      list[i] *= Math.floor(minimumFirst / list[i])
    }
   }
   // console.log(list);
+  */
 
+  /*
   // const maxIterations = 9999999;
   const maxIterations = 100;
   let currentIteration = 0;
@@ -184,17 +229,14 @@ function findSequentialMultiples(initialList, minimumFirst = 0) {
         list[i + 1] += busOffsets[i + 1]
       }
     }
-    */
   }
-
-  console.log(`exited on iteration ${currentIteration}/${maxIterations}`)
-  return list;
+*/
 }
 
 // a = { value, factor }
-function findSequentialMultiplePair(a, b) {
-  DEBUG && console.log({...a}, {...b})
-  if (a.value + 1 === b.value) {
+function findSequentialMultiplePair(a, b, distance) {
+  //  console.log({...a}, {...b}, distance)
+  if (a.value + distance === b.value) {
     DEBUG && console.log(a.value, b.value)
     return [a.value, b.value];
   }
@@ -205,33 +247,31 @@ function findSequentialMultiplePair(a, b) {
 
   if (a.factor === 1) {
     if (a.value < b.value) {
-      DEBUG && console.log(b.value - 1, b.value)
-      return [b.value - 1, b.value];
+      DEBUG && console.log(b.value - distance, b.value)
+      return [b.value - distance, b.value];
     } else if (a.value > b.value) {
       const diff = a.value - b.value;
       b.value += Math.max(1, Math.floor(diff / b.factor)) * b.factor;
 
-      DEBUG && console.log(b.value - 1, b.value)
-      console.log('HERE 1', b.value - 1, b.value)
-      return [b.value - 1, b.value];
+      DEBUG && console.log(b.value - distance, b.value)
+      return [b.value - distance, b.value];
     }
   }
 
   if (b.factor === 1) {
     if (b.value < a.value) {
-      DEBUG && console.log(a.value, a.value + 1)
-      return [a.value, a.value + 1];
+      DEBUG && console.log(a.value, a.value + distance)
+      return [a.value, a.value + distance];
     } else if (b.value > a.value) {
       const diff = b.value - a.value;
       a.value += Math.max(1, Math.floor(diff / a.factor)) * a.factor;
 
-      DEBUG && console.log(a.value, a.value + 1)
-      console.log('HERE 2', a.value, a.value - 1)
+      DEBUG && console.log(a.value, a.value + distance)
       return [a.value, a.value + 1];
     }
   }
 
-  while (a.value + 1 != b.value) {
+  while (a.value + distance != b.value) {
     const difference = Math.abs(a.value - b.value);
 
     if (a.value < b.value) {
@@ -259,4 +299,4 @@ function isListSequential(list) {
 const sequentialMultiples = findSequentialMultiples(busOffsets, 100000000000000);
 console.log('final', sequentialMultiples)
 
-// console.log(findSequentialMultiplePair({ value: 3196, factor: 17 }, { value: 3418, factor: 1 }))
+// console.log(findSequentialMultiplePair({ value: 2, factor: 2 }, { value: 3, factor: 3 }, 3))
