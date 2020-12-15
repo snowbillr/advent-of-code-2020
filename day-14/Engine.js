@@ -1,18 +1,26 @@
 import { ConvertableNumber } from './ConvertableNumber.js';
 
 export class Engine {
-  constructor(mask, instructions) {
-    this.mask = mask;
+  constructor(instructions) {
+    this.mask = '';
     this.instructions = instructions;
     this.memory = [];
   }
 
   execute() {
     this.instructions.forEach(instruction => {
-      const location = instruction[0];
-      const value = ConvertableNumber.fromDecimal(instruction[1]);
+      const type = instruction.splice(0, 1)[0];
 
-      this.memory[location] = this.applyMask(value.binaryString);
+      switch (type) {
+        case 'mask':
+          this.mask = instruction[0];
+          break;
+        case 'set':
+          const location = instruction[0];
+          const value = ConvertableNumber.fromDecimal(instruction[1]);
+          this.memory[location] = this.applyMask(value.binaryString);
+          break;
+      }
     });
   }
 

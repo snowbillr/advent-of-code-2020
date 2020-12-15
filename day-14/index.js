@@ -10,24 +10,20 @@ const lines = parseInputStringToLines(exampleInput)
 
 const DEBUG = false;
 
-function parseLines(lines) {
-  const maskLine = lines.splice(0, 1)[0];
-  const [mask] = maskLine.match(/[X01]+/)
+function parseInstructions(lines) {
+  return lines.map(line => {
+    if (line.match(/mem/)) {
+      const [_, location, value] = line.match(/mem\[(\d+)\]\s=\s(\d+)/)
+      return ['set', parseInt(location), parseInt(value)];
+    } else {
+      const [mask] = line.match(/[X01]+/)
+      return ['mask', mask];
+    }
 
-  const instructions = lines.map(line => {
-    const [_, location, value] = line.match(/mem\[(\d+)\]\s=\s(\d+)/)
-    return [location, value].map(v => parseInt(v));
   });
-
-  return {
-    mask,
-    instructions
-  }
 }
 
-
-const { mask, instructions } = parseLines(lines);
-
-const engine = new Engine(mask, instructions);
+const instructions = parseInstructions(lines);
+const engine = new Engine(instructions);
 engine.execute();
 console.log(engine.calculateSumOfValues())
