@@ -3,10 +3,10 @@ import { parseInputStringToLines } from '../input-utils.js';
 import exampleInput from './example-input.js';
 import actualInput from './actual-input.js';
 
-import { Engine } from './Engine.js';
+import { EngineV1, EngineV2 } from './Engine.js';
 
-const lines = parseInputStringToLines(exampleInput)
-// const lines = parseInputStringToLines(actualInput)
+// const lines = parseInputStringToLines(exampleInput)
+const lines = parseInputStringToLines(actualInput)
 
 const DEBUG = false;
 
@@ -24,6 +24,11 @@ function parseInstructions(lines) {
 }
 
 const instructions = parseInstructions(lines);
-const engine = new Engine(instructions);
+// const engine = new EngineV1(instructions);
+// engine.execute();
+// console.log(engine.calculateSumOfValues())
+
+const engine = new EngineV2(instructions);
 engine.execute();
+// console.log(engine.memory)
 console.log(engine.calculateSumOfValues())
