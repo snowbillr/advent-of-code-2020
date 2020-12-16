@@ -3,33 +3,40 @@ import { parseInputStringToLines } from '../input-utils.js';
 import exampleInput from './example-input.js';
 import actualInput from './actual-input.js';
 
-const lines = parseInputStringToLines(exampleInput)
-// const lines = parseInputStringToLines(actualInput)
+import { History } from './History.js';
+
+// const lines = parseInputStringToLines(exampleInput)
+const lines = parseInputStringToLines(actualInput)
 
 const input = lines[0].split(',').map(n => parseInt(n));
-input.splice(0, 0, -1)
+// input.splice(0, 0, -1)
 
 function playGame(startingNumbers, upTo) {
-  const history = startingNumbers;
-  const start = history.length;
-  for (let round = start; round < upTo + 1; round++) {
-    const mostRecentNumber = history[round - 1];
-    const pastNumberRounds = findRoundOf(history.slice(0, round - 1), mostRecentNumber);
+  const history = new History();
+  startingNumbers.forEach((n, i) => {
+    history.push(n, i + 1);
+  });
 
-    let nextNumber = 0;
-    if (pastNumberRounds.length > 0) {
-      nextNumber = (round - 1) - pastNumberRounds.reverse()[0]
+  let nextNumber = -1;
+  for (let currentRound = startingNumbers.length + 1; currentRound <= upTo; currentRound++) {
+    let previousNumber = history.numberFor(currentRound - 1);
+    const previousNumberRounds = history.numbers[previousNumber];
+
+    if (previousNumberRounds.length <= 1) {
+      nextNumber = 0;
+    } else {
+      nextNumber = previousNumberRounds[0] - previousNumberRounds[1];
     }
 
-    history.push(nextNumber)
+    history.push(nextNumber, currentRound);
   }
 
-  return history.slice(1);
+  console.log(nextNumber)
+  return history;
 }
 
-function findRoundOf(list, number) {
-  return list.map((n, i) => number === n ? i : null).filter(Boolean);
-}
-
-const history = playGame(input, 2020);
-console.log(history.reverse()[0])
+let startTime = Date.now();
+   playGame(input, 30000000);
+// playGame(input, 30000000);
+let duration = Date.now() - startTime;
+console.log('duration', duration)
